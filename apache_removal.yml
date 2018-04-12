@@ -1,0 +1,14 @@
+- hosts: containers
+  remote_user: root
+  tasks:
+   - name: purge httpd service
+     yum: name=httpd state=absent
+
+   - name: remove httpd directory
+     file: path=/etc/httpd state=absent
+
+   - name: remove subversion
+     yum: name=subversion state=absent
+
+   - name: remove mod_dav_svn
+     yum: name=mod_dav_svn state=absent  

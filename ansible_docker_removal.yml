@@ -1,0 +1,13 @@
+ - hosts: localhost
+   tasks:
+
+    - name: Remove docker containers
+      docker_container:
+       name: "{{item.name}}"
+       image: centos7_httpd
+       state: absent
+      with_items:
+                 - { name: 'CentOS7v1' }
+                 - { name: 'CentOS7v2' }
+                 - { name: 'CentOS7v3' }
+                 - { name: 'CentOS7v4' }

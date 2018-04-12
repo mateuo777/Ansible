@@ -1,0 +1,69 @@
+---
+- hosts: containers
+  remote_user: root
+  tasks:
+
+   - name: ensure DNS are there
+     lineinfile:
+      path: /etc/resolv.conf
+      line: 'nameserver 8.8.8.8'
+      insertafter: EOL
+
+   - name: update repos
+     command: yum update -y
+
+   - name: upgrade packages
+     command: yum upgrade -y
+
+   - name: install httpd
+     yum: name=httpd state=latest
+
+   - name: install net tools
+     command: yum install -y net-tools
+
+   - name: enable autostart
+     command: systemctl enable httpd
+
+   - name: start apache2
+     command: systemctl start httpd
+   
+   - name: verify, if apache2 is running and enabled by boot
+     service: name=httpd state=started enabled=yes
+
+   - name: make vhost.d dir
+     file: path=/etc/httpd/vhost.d state=directory
+
+   - name: add vhost.d line
+     lineinfile:
+      path: /etc/httpd/conf/httpd.conf
+      line: 'IncludeOptional vhost.d/*.conf'
+      insertafter: EOF
+
+   - name: create a vhost.d file
+     copy:
+      src: /etc/apache2/sites-enabled/mateuo.mylabserver.com.https.conf
+      dest: /etc/httpd/vhost.d/mateuo.mylabserver.com.https.conf
+      owner: root
+      group: root
+      mode: 0644
+
+   - name: now we will be installing java for jenkins
+     yum: name=java-1.8.0-openjdk.x86_64 state=latest
+
+   - name: echo 'export JAVA_HOME=/usr/lib/jvm/jre-1.8.0-openjdk' | tee -a /etc/profile  
+     command: echo 'export JAVA_HOME=/usr/lib/jvm/jre-1.8.0-openjdk' | tee -a /etc/profile
+
+   - name: echo 'export JRE_HOME=/usr/lib/jvm/jre' | tee -a /etc/profile  
+     command: echo 'export JRE_HOME=/usr/lib/jvm/jre' | tee -a /etc/profile
+
+   - name: installing wget
+     yum: name=wget state=latest
+
+   - name: wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
+     command: wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
+
+   - name: rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+     command: rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+
+   - name: install jenkins
+     yum: name=jenkins state=latest  
