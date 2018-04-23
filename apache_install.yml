@@ -1,6 +1,12 @@
 ---
 - hosts: containers
   remote_user: root
+
+  handlers:
+   - name: restart apache2
+     service: name=httpd state=restarted
+     listen: "restart all web services"
+
   tasks:
 
    - name: ensure DNS are there
@@ -19,7 +25,7 @@
      yum: name=httpd state=latest
 
    - name: install net tools
-     command: yum install -y net-tools
+     yum: name=net-tools state=latest
 
    - name: enable autostart
      command: systemctl enable httpd
@@ -38,6 +44,7 @@
       path: /etc/httpd/conf/httpd.conf
       line: 'IncludeOptional vhost.d/*.conf'
       insertafter: EOF
+     notify: "restart all web services"
 
    - name: create a vhost.d file
      copy:
