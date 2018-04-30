@@ -1,0 +1,24 @@
+---
+- hosts: readynas
+  remote_user: root
+  gather_facts: False
+
+  handlers:
+          - name: restarting the required services
+            command: systemctl restart readynasd apache2
+            listen: "restarting readynasd and apache2"
+
+  pre_tasks:
+          - name: Install python2 for Ansible
+            raw: bash -c "test -e /usr/bin/python || (apt -qqy update && apt install -qqy python-minimal)"
+            register: output
+            changed_when: output.stdout != ""
+  tasks:
+          - name: replacing the glossary
+            copy:
+                    src: /home/mateuo/dictionary.xml
+                    dest: /frontview/dashboard/dictionary
+                    owner: root
+                    group: root
+                    mode: 0644
+            notify: "restarting readynasd and apache2"

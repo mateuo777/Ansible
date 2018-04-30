@@ -1,0 +1,12 @@
+---
+- hosts: readynas
+  remote_user: root
+  gather_facts: False
+  pre_tasks:
+          - name: Install python2 for Ansible
+            raw: bash -c "test -e /usr/bin/python || (apt -qqy update && apt install -qqy python-minimal)"
+            register: output
+            changed_when: output.stdout != ""
+  tasks:
+          - name: all ReadyNAS units are going to reboot
+            command: systemctl reboot
