@@ -4,7 +4,7 @@
   gather_facts: False
   pre_tasks:
           - name: Install python2 for Ansible
-            raw: bash -c "test -e /usr/bin/python || (apt -qqy update && apt install -qqy python-minimal)"
+            raw: bash -c "test -e /usr/bin/python || (apt -qqy update && apt install -qqy python-pip)"
             register: output
             changed_when: output.stdout != ""
   tasks:
