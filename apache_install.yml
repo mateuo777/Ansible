@@ -1,6 +1,7 @@
 ---
 - hosts: containers
   remote_user: root
+  gather_facts: False
 
   handlers:
    - name: restart apache2
@@ -27,12 +28,6 @@
    - name: install net tools
      yum: name=net-tools state=latest
 
-   - name: enable autostart
-     command: systemctl enable httpd
-
-   - name: start apache2
-     command: systemctl start httpd
-   
    - name: verify, if apache2 is running and enabled by boot
      service: name=httpd state=started enabled=yes
 
@@ -44,15 +39,15 @@
       path: /etc/httpd/conf/httpd.conf
       line: 'IncludeOptional vhost.d/*.conf'
       insertafter: EOF
-     notify: "restart all web services"
 
-   - name: create a vhost.d file
+   - name: create a vhost.d file and restart web services
      copy:
       src: /etc/apache2/sites-enabled/mateuo.mylabserver.com.https.conf
       dest: /etc/httpd/vhost.d/mateuo.mylabserver.com.https.conf
       owner: root
       group: root
       mode: 0644
+     notify: "restart all web services"
 
    - name: now we will be installing java for jenkins
      yum: name=java-1.8.0-openjdk.x86_64 state=latest
