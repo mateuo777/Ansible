@@ -10,5 +10,5 @@ if [[ -n $to_remove ]]; then
 fi
 
 git commit -m "Automated commit for Ansible powered by cron"
-ssh -T mateuo777@github.com/Ansible
+ssh -T mateuo777@github.com
 git push -u origin master
